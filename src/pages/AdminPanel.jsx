@@ -10,55 +10,63 @@ import Bookings from "../components/Bookings";
 
 const AdminPanel = () => {
   const [selectedTab, setSelectedTab] = useState("dashboard");
-  const socketRef = useRef(null);
+  // const socketRef = useRef(null);
 
-  useEffect(() => {
-    let reconnectAttempts = 0;
+  // useEffect(() => {
+  //   let reconnectAttempts = 0;
 
-    const connectWebSocket = () => {
-      if (socketRef.current) return; // Prevent multiple connections
+  //   const connectWebSocket = () => {
+  //     if (socketRef.current) return; // Prevent multiple connections
 
-      console.log("🔄 Connecting WebSocket...");
-      const socket = new WebSocket("ws://localhost:8080");
+  //     console.log("🔄 Connecting WebSocket...");
+  //     const socket = new WebSocket("ws://localhost:8080");
 
-      socket.onopen = () => {
-        console.log("✅ Admin WebSocket connected");
-        socket.send(JSON.stringify({ role: "admin" }));
-        reconnectAttempts = 0; // Reset attempts
-      };
+  //     socket.onopen = () => {
+  //       console.log("✅ Admin WebSocket connected");
+  //       socket.send(JSON.stringify({ role: "admin" }));
+  //       reconnectAttempts = 0; // Reset attempts
+  //     };
 
-      socket.onmessage = (event) => {
-        const notification = JSON.parse(event.data);
-        console.log("📩 New Notification:", notification);
+  //     socket.onmessage = (event) => {
+  //       const notification = JSON.parse(event.data);
+  //       console.log("📩 New Notification:", notification);
 
-        // Display normal alert notification
-        alert(`📢 ${notification.title} - ${notification.message}`);
-      };
+  //       // Display normal alert notification
+  //       alert(`📢 ${notification.title} - ${notification.message}`);
+  //     };
 
-      socket.onclose = (event) => {
-        console.log(`⚠️ WebSocket disconnected (Code: ${event.code}). Reconnecting...`);
-        socketRef.current = null; // Reset socket reference
-        reconnectAttempts++;
-        setTimeout(connectWebSocket, Math.min(5000, reconnectAttempts * 1000));
-      };
+  //     socket.onclose = (event) => {
+  //       console.log(`⚠️ WebSocket disconnected (Code: ${event.code}). Reconnecting...`);
+  //       socketRef.current = null; // Reset socket reference
+  //       reconnectAttempts++;
+  //       setTimeout(connectWebSocket, Math.min(5000, reconnectAttempts * 1000));
+  //     };
 
-      socket.onerror = (error) => {
-        console.error("❌ WebSocket error:", error);
-        socket.close();
-      };
+  //     socket.onerror = (error) => {
+  //       console.error("❌ WebSocket error:", error);
+  //       socket.close();
+  //     };
 
-      socketRef.current = socket;
-    };
+  //     socketRef.current = socket;
+  //   };
 
-    connectWebSocket();
+  //   connectWebSocket();
 
-    return () => {
-      if (socketRef.current) {
-        console.log("Closing WebSocket...");
-        socketRef.current.close();
-      }
-    };
-  }, []);
+  //   return () => {
+  //     if (socketRef.current) {
+  //       console.log("Closing WebSocket...");
+  //       socketRef.current.close();
+  //     }
+  //   };
+  // }, []);
+
+  // useEffect(() => {
+  //   if (selectedTab === "bookings") {
+     
+  //   }
+  // }, [selectedTab]);
+
+
 
   return (
     <div className="flex h-screen">
@@ -75,6 +83,7 @@ const AdminPanel = () => {
         {selectedTab === "users" && <ManageUsers />}
         {selectedTab === "settings" && <Settings />}
       </main>
+      
     </div>
   );
 };

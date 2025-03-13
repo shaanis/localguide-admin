@@ -1,20 +1,35 @@
 import React, { useEffect, useState } from "react";
 import { Search } from "lucide-react";
-import { showBookingsApi } from "../services/allApi";
+import { showBookingsApi, updatePendingBookingApi } from "../services/allApi";
+import { toast } from "react-toastify";
 
 const Bookings = () => {
     const[bookings,setBookings]=useState([])
     const[searchKey,setSearchKey]=useState("")
     useEffect(()=>{
       allBookings()
+      const intervel = setInterval(allBookings,5000)
+      return ()=>clearInterval(intervel)
     },[searchKey])
-    const allBookings = async()=>{
-        const result = await showBookingsApi(searchKey)
-        if(result.status >=200 || result.status<300){
-          setBookings(result.data)
-          console.log(result.data);
-          
-        }
+    const allBookings = async () => {
+      const result = await showBookingsApi(searchKey);
+      if (result.status >= 200 && result.status < 300) {
+          const sortedBookings = result.data.sort((a, b) => 
+              a.status === "pending" ? -1 : b.status === "pending" ? 1 : 0
+          );
+          setBookings(sortedBookings);
+          console.log(sortedBookings);
+      }
+  };
+  
+
+    const statusUpdate =async(id,status)=>{
+      const result = await updatePendingBookingApi(id,status)
+      if (result.status >= 200 && result.status < 300) {
+        allBookings(); 
+        toast.success("Message Readed")
+      }
+    
     }
   return (
     <div className="container mx-auto p-6">
@@ -56,7 +71,7 @@ const Bookings = () => {
               {
                 bookings?.length>0? (
                     bookings.map(item=>(
-                <tr key={item?._id} className="border hover:bg-gray-200 transition-all">
+                <tr onClick={()=>statusUpdate(item._id ,"checked")} key={item?._id} className={`border hover:bg-gray-200 transition-all ${item.status == "pending" ? "bg-blue-400 text-white" : "bg-white text-black"}`}>
                 <td className="border p-4">{item?._id}</td>
                 <td className="border p-4">{item?.userId?.username}</td>
                 <td className="border p-4">{item?.eventName}</td>

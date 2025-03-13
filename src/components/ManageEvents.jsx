@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Button, Modal } from "react-bootstrap";
-import { addEventsApi, showEventsApi } from "../services/allApi";
+import { Button, Modal, Spinner } from "react-bootstrap";
+import { addEventsApi, deleteEventsApi, showEventsApi } from "../services/allApi";
 import { toast } from "react-toastify";
 import serverurl from "../services/serverurl";
+import DeleteModal from "./DeleteModal";
+import { Box, Skeleton } from "@mui/material";
 
 const ManageEvents = () => {
+  const[isLoading,setIsLoading]=useState(false)
+  const[eventLoading,setEventLoading]=useState(false)
   const [preview, setPreview] = useState("");
   const [getEvent, setGetEvent] = useState("");
   const [eventDetails, setEventDetails] = useState({
@@ -87,13 +91,23 @@ const ManageEvents = () => {
       availableTickets &&
       date
     ) {
-      const result = await addEventsApi(reqBody, reqHeader);
+      try{
+        setIsLoading(true)
+        const result = await addEventsApi(reqBody, reqHeader);
+      
       if (result.status == 200) {
         toast.success("Event added!!");
         handleClose();
         getAllEvents();
       }
+    }catch(e){
+      console.log(e);
+      
+    }finally{
+      setIsLoading(false)
+      handleClose();
     }
+      }
   };
 
   useEffect(() => {
@@ -101,10 +115,22 @@ const ManageEvents = () => {
   }, []);
   // show all events
   const getAllEvents = async () => {
-    const result = await showEventsApi();
-    setGetEvent(result.data);
-    console.log(result.data);
+    try {
+      setEventLoading(true); // Ensure loading state is set before the request
+      const result = await showEventsApi();
+  
+      if (result.status === 200) {
+        setGetEvent(result.data);
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setEventLoading(false); // Ensure loading is disabled after request completes
+    }
   };
+  
+  // delete event
+  
   return (
     <>
       <h1 className="text-2xl font-bold mb-4">Manage Events</h1>
@@ -163,66 +189,56 @@ const ManageEvents = () => {
               </tr>
             </thead>
             <tbody>
-              {getEvent?.length > 0 ? (
-                getEvent.map((item, index) => (
-                  <tr
-                    key={item._id}
-                    className="bg-white border-b hover:bg-gray-50"
-                  >
-                    <td className="px-4 py-3">{index + 1}</td>
-                    <td className="px-4 py-3 font-medium text-gray-900">
-                      {item.eventName}
-                    </td>
-                    <td className="px-4 py-3">
-                      <p>{item.location}</p>
-                    </td>
-                    <td className="px-4 py-3">
-                      <img
-                        className="w-16 h-16 object-cover rounded-md"
-                        src={`${serverurl}/uploads/${item.image}`}
-                        alt="Place"
-                      />
-                    </td>
-                    <td className="px-4 py-3">{item.description}</td>
-                    <td
-                      className={`px-4 py-3 ${
-                        item.availableTickets > 0
-                          ? "text-black"
-                          : "text-red-500 font-bold"
-                      }`}
-                    >
-                      {item.availableTickets > 0
-                        ? item.availableTickets
-                        : "Sold Out"}
-                    </td>{" "}
-                    <td className="px-4 py-3">{item.ticketPrice}</td>
-                    <td className="px-4 py-3">{item.date}</td>
-                    <td className="px-4 py-3">{item.time}</td>
-                    <td className="px-4 py-3 flex flex-col md:flex-row md:items-center md:gap-4">
-                      {/* <Edithotel hotel={item}  editShowHotel={showHotel}/> */}
-                      <button
-                        //  onClick={() => removeHotel(item._id)}
-                        className="text-red-600 hover:underline"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="text-center py-4">
-                    No place added yet
-                  </td>
-                </tr>
-              )}
-            </tbody>
+  {eventLoading ? (
+    <Box sx={{ width: 1100, p: 2 }}>
+          <Skeleton />
+      <Skeleton animation="wave" />
+      <Skeleton animation={false} />
+    </Box>
+  ) : getEvent?.length > 0 ? (
+    getEvent.map((item, index) => (
+      <tr key={item._id} className="bg-white border-b hover:bg-gray-50">
+        <td className="px-4 py-3">{index + 1}</td>
+        <td className="px-4 py-3 font-medium text-gray-900">{item.eventName}</td>
+        <td className="px-4 py-3">{item.location}</td>
+        <td className="px-4 py-3">
+          <img
+            className="w-16 h-16 object-cover rounded-md"
+            src={`${serverurl}/uploads/${item.image}`}
+            alt="Event"
+          />
+        </td>
+        <td className="px-4 py-3">{item.description}</td>
+        <td
+          className={`px-4 py-3 ${
+            item.availableTickets > 0 ? "text-black" : "text-red-500 font-bold"
+          }`}
+        >
+          {item.availableTickets > 0 ? item.availableTickets : "Sold Out"}
+        </td>
+        <td className="px-4 py-3">{item.ticketPrice}</td>
+        <td className="px-4 py-3">{item.date}</td>
+        <td className="px-4 py-3">{item.time}</td>
+        <td className="px-4 py-3 flex flex-col md:flex-row md:items-center md:gap-4">
+          <DeleteModal Event={item} allEvents={getAllEvents} />
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="10" className="text-center py-4 text-gray-500">
+        No events found.
+      </td>
+    </tr>
+  )}
+</tbody>
+
           </table>
         </div>
       </div>
 
       <>
-        <Modal centered show={show} onHide={handleClose} animation={false}>
+        <Modal  centered show={show} onHide={handleClose} animation={false}>
           <Modal.Header closeButton>
             <Modal.Title>Add Hotel</Modal.Title>
           </Modal.Header>
@@ -355,11 +371,11 @@ const ManageEvents = () => {
             </form>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleClose}>
+            <Button disabled={isLoading} variant="secondary" onClick={handleClose}>
               Close
             </Button>
-            <Button onClick={addEvents} variant="primary">
-              +ADD
+            <Button disabled={isLoading} onClick={addEvents} variant="primary">
+            {isLoading ? <Spinner className="text-danger" animation="border" size="sm" /> : "+ADD"}
             </Button>
           </Modal.Footer>
         </Modal>

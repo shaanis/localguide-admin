@@ -64,6 +64,19 @@ export const loginApi = async(reqBody)=>{
  export const showBookingsApi =async(searchKey)=>{
   return await commonAPI("GET",`${serverurl}/all-booking?search=${searchKey}`,{})
 }
+// delete events
+ export const deleteEventsApi =async(id)=>{
+  return await commonAPI("GET",`${serverurl}/${id}/remove-event`,{})
+}
+
+// get all pending bookings
+ export const getAllPendingBookingApi =async()=>{
+  return await commonAPI("GET",`${serverurl}/booking-pendings`,{})
+}
+// update booking status
+ export const updatePendingBookingApi =async(id,status)=>{
+  return await commonAPI("PUT",`${serverurl}/booking/${id}/update?status=${status}`,{})
+}
 
 
 

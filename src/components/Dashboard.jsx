@@ -58,7 +58,7 @@ const Dashboard = () => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4 text-red-500 mt-10">Dashboard Overview</h1>
+      <h1 className="text-2xl font-bold mb-4 text-red-500 mt-10">Dashboard</h1>
       <div className="grid grid-cols-3 gap-4">
         <div className="p-4 bg-white shadow rounded">
           Total Places: { Place ? Place.length : 0}

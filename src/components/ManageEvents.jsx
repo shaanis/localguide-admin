@@ -191,39 +191,48 @@ const ManageEvents = () => {
             <tbody>
   {eventLoading ? (
     <Box sx={{ width: 1100, p: 2 }}>
-          <Skeleton />
+      <Skeleton />
       <Skeleton animation="wave" />
       <Skeleton animation={false} />
     </Box>
   ) : getEvent?.length > 0 ? (
-    getEvent.map((item, index) => (
-      <tr key={item._id} className="bg-white border-b hover:bg-gray-50">
-        <td className="px-4 py-3">{index + 1}</td>
-        <td className="px-4 py-3 font-medium text-gray-900">{item.eventName}</td>
-        <td className="px-4 py-3">{item.location}</td>
-        <td className="px-4 py-3">
-          <img
-            className="w-16 h-16 object-cover rounded-md"
-            src={`${serverurl}/uploads/${item.image}`}
-            alt="Event"
-          />
-        </td>
-        <td className="px-4 py-3">{item.description}</td>
-        <td
-          className={`px-4 py-3 ${
-            item.availableTickets > 0 ? "text-black" : "text-red-500 font-bold"
-          }`}
-        >
-          {item.availableTickets > 0 ? item.availableTickets : "Sold Out"}
-        </td>
-        <td className="px-4 py-3">{item.ticketPrice}</td>
-        <td className="px-4 py-3">{item.date}</td>
-        <td className="px-4 py-3">{item.time}</td>
-        <td className="px-4 py-3 flex flex-col md:flex-row md:items-center md:gap-4">
-          <DeleteModal Event={item} allEvents={getAllEvents} />
-        </td>
-      </tr>
-    ))
+    [...getEvent]
+      .sort((a, b) => new Date(a.date) - new Date(b.date)) // Sort by date (ascending)
+      .sort((a, b) => (new Date(a.date) < new Date() ? 1 : -1)) // Push expired to the bottom
+      .map((item, index) => (
+        <tr key={item._id} className="bg-white border-b hover:bg-gray-50">
+          <td className="px-4 py-3">{index + 1}</td>
+          <td className="px-4 py-3 font-medium text-gray-900">{item.eventName}</td>
+          <td className="px-4 py-3">{item.location}</td>
+          <td className="px-4 py-3">
+            <img
+              className="w-16 h-16 object-cover rounded-md"
+              src={`${serverurl}/uploads/${item.image}`}
+              alt="Event"
+            />
+          </td>
+          <td className="px-4 py-3">{item.description}</td>
+          <td
+            className={`px-4 py-3 ${
+              item.availableTickets > 0 ? "text-black" : "text-red-500 font-bold"
+            }`}
+          >
+            {item.availableTickets > 0 ? item.availableTickets : "Sold Out"}
+          </td>
+          <td className="px-4 py-3">{item.ticketPrice}</td>
+          <td className="px-4 py-3">
+            {new Date(item.date) < new Date() ? (
+              <span className="text-red-500 font-bold">Expired</span>
+            ) : (
+              item.date
+            )}
+          </td>
+          <td className="px-4 py-3">{item.time}</td>
+          <td className="px-4 py-3 flex flex-col md:flex-row md:items-center md:gap-4">
+            <DeleteModal Event={item} allEvents={getAllEvents} />
+          </td>
+        </tr>
+      ))
   ) : (
     <tr>
       <td colSpan="10" className="text-center py-4 text-gray-500">
@@ -232,6 +241,7 @@ const ManageEvents = () => {
     </tr>
   )}
 </tbody>
+
 
           </table>
         </div>
@@ -344,16 +354,7 @@ const ManageEvents = () => {
                   className="border border-gray-300 p-2 rounded-md w-full"
                   type="text"
                 />
-                {/* <Form.Select 
-                  className="border border-gray-300 p-2 rounded-md w-full"  
-                  aria-label="Wifi Availability"
-                  value={hotelDetails.wifi} // Bind value to state
-                  onChange={(e) => setEventDetails({ ...eventDetails, wifi: e.target.value })}
-                >
-                  <option className='w-10' value="">Wifi</option>
-                  <option className='w-10' value="Yes">Yes</option>
-                  <option value="No">No</option>
-                </Form.Select> */}
+               
 
                 <textarea
                   maxLength={200}

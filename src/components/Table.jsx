@@ -4,10 +4,13 @@ import serverurl from "../services/serverurl";
 import { Button } from "react-bootstrap";
 import Edit from "./Edit";
 import { toast } from 'react-toastify';
+import { Box, Skeleton } from "@mui/material";
 
 const Table = () => {
   const [getPlace, setGetPlace] = useState([]);
   const[searchKey,setSearchKey]=useState("")
+      const[isLoading,setIsLoading]=useState(false)
+  
 
   useEffect(() => {
     fetchPlaces();
@@ -15,10 +18,13 @@ const Table = () => {
 
   const fetchPlaces = async (reqHeader) => {
     try {
+      setIsLoading(true)
       const result = await getPlaceApi(searchKey,reqHeader);
       setGetPlace(result.data);
     } catch (error) {
       console.log(error);
+    }finally{
+      setIsLoading(false)
     }
   };
 
@@ -82,7 +88,20 @@ const Table = () => {
               </tr>
             </thead>
             <tbody>
-              {getPlace?.length > 0 ? (
+              {
+                isLoading ? (
+                  <tr>
+                  <td colSpan="10" className="py-4 px-6">
+                    <Box sx={{ width: "100%", p: 2 }}>
+                      <Skeleton height={40} />
+                      <Skeleton animation="wave" height={40} />
+                      <Skeleton animation={false} height={40} />
+                    </Box>
+                  </td>
+                </tr>
+                ):
+              
+              getPlace?.length > 0 ? (
                 getPlace.map((item, index) => (
                   <tr
                     key={item._id}

@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { showBookingsApi, updatePendingBookingApi } from "../services/allApi";
 import { toast } from "react-toastify";
+import { Box, Skeleton } from "@mui/material";
 
 const Bookings = () => {
+  const[isLoading,setIsLoading]=useState(false)
     const[bookings,setBookings]=useState([])
     const[searchKey,setSearchKey]=useState("")
     useEffect(()=>{
@@ -12,13 +14,21 @@ const Bookings = () => {
       return ()=>clearInterval(intervel)
     },[searchKey])
     const allBookings = async () => {
-      const result = await showBookingsApi(searchKey);
+      try{
+        setIsLoading(true)
+        const result = await showBookingsApi(searchKey);
       if (result.status >= 200 && result.status < 300) {
           const sortedBookings = result.data.sort((a, b) => 
               a.status === "pending" ? -1 : b.status === "pending" ? 1 : 0
           );
           setBookings(sortedBookings);
           console.log(sortedBookings);
+      }
+      }catch(e){
+        console.log(e);
+        
+      }finally{
+        setIsLoading(false)
       }
   };
   
@@ -69,6 +79,17 @@ const Bookings = () => {
             </thead>
             <tbody className="bg-white">
               {
+                isLoading ?(
+                  <tr>
+                    <td colSpan="10" className="py-4 px-6">
+                      <Box sx={{ width: "100%", p: 2 }}>
+                        <Skeleton height={40} />
+                        <Skeleton animation="wave" height={40} />
+                        <Skeleton animation={false} height={40} />
+                      </Box>
+                    </td>
+                  </tr>
+                ):
                 bookings?.length>0? (
                     bookings.map(item=>(
                 <tr onClick={()=>statusUpdate(item._id ,"checked")} key={item?._id} className={`border hover:bg-gray-200 transition-all ${item.status == "pending" ? "bg-blue-400 text-white" : "bg-white text-black"}`}>

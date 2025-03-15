@@ -190,11 +190,15 @@ const ManageEvents = () => {
             </thead>
             <tbody>
   {eventLoading ? (
-    <Box sx={{ width: 1100, p: 2 }}>
-      <Skeleton />
-      <Skeleton animation="wave" />
-      <Skeleton animation={false} />
-    </Box>
+    <tr>
+    <td colSpan="10" className="py-4 px-6">
+      <Box sx={{ width: "100%", p: 2 }}>
+        <Skeleton height={40} />
+        <Skeleton animation="wave" height={40} />
+        <Skeleton animation={false} height={40} />
+      </Box>
+    </td>
+  </tr>
   ) : getEvent?.length > 0 ? (
     [...getEvent]
       .sort((a, b) => new Date(a.date) - new Date(b.date)) // Sort by date (ascending)

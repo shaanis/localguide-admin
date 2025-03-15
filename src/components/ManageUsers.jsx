@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { deleteUserApi, getAllUserApi } from '../services/allApi'
 import { Trash2 } from "lucide-react";
+import { Box, Skeleton } from '@mui/material';
 
 const ManageUsers = () => {
   const [user, setUser] = useState([])
+  const[isLoading,setIsLoading]=useState(false)
 
   useEffect(() => {
     getUser()
@@ -12,6 +14,7 @@ const ManageUsers = () => {
   // Fetch Users
   const getUser = async () => {
     try {
+      setIsLoading(true)
       const result = await getAllUserApi()
       if (result?.status === 200) {
         setUser(result.data)
@@ -20,7 +23,7 @@ const ManageUsers = () => {
       }
     } catch (error) {
       console.error("Error fetching users:", error)
-    }
+    }finally{setIsLoading(false)}
   }
 
   // Delete User
@@ -57,7 +60,19 @@ const ManageUsers = () => {
               </tr>
             </thead>
             <tbody>
-              {user.map((users, index) => (
+              {
+                isLoading ? (
+                  <tr>
+                    <td colSpan="10" className="py-4 px-6">
+                      <Box sx={{ width: "100%", p: 2 }}>
+                        <Skeleton height={40} />
+                        <Skeleton animation="wave" height={40} />
+                        <Skeleton animation={false} height={40} />
+                      </Box>
+                    </td>
+                  </tr>
+                ):
+              user.map((users, index) => (
                 <tr
                   key={users._id}
                   className={`${

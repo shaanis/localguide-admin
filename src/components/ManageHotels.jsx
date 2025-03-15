@@ -4,11 +4,13 @@ import { addHotelApi, deleteHotelApi, getHotelApi } from '../services/allApi'
 import serverurl from '../services/serverurl'
 import {  toast } from 'react-toastify';
 import Edithotel from './Edithotel';
+import { Box, Skeleton } from '@mui/material';
 
   
 const ManageHotels = () => {
   const notify = () => toast.error("Item has been deleted!");
   const[getHotel, setGetHotel]=useState("")
+    const[isLoading,setIsLoading]=useState(false)
    const[preview, setPreview]=useState("")
    const[hotelDetails,setHotelDetails]=useState({
     hotelName:"",hotelImg:"",description:"",locationUrl:"",wifi:"",rate:""
@@ -68,6 +70,7 @@ const ManageHotels = () => {
     // show hotel
     const showHotel = async()=>{
      try{
+      setIsLoading(true)
       const result = await getHotelApi()
      if(result.status == 200){
       setGetHotel(result.data)
@@ -77,6 +80,8 @@ const ManageHotels = () => {
      }catch(e){
       console.log(e);
       
+     }finally{
+      setIsLoading(false)
      }
     }
 
@@ -142,7 +147,21 @@ const ManageHotels = () => {
             </tr>
           </thead>
           <tbody>
-            {getHotel?.length > 0 ? (
+            {
+              isLoading? (
+                <tr>
+    <td colSpan="10" className="py-4 px-6">
+      
+      <Box sx={{ width: "100%", p: 2 }}>
+        <Skeleton height={40} />
+        <Skeleton animation="wave" height={40} />
+        <Skeleton animation={false} height={40} />
+      </Box>
+    </td>
+  </tr>
+              ):
+            
+            getHotel?.length > 0 ? (
               getHotel.map((item, index) => (
                 <tr
                   key={item._id}
